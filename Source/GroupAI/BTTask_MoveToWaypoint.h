@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
 #include <BehaviorTree/BehaviorTreeTypes.h>
+#include "Waypoint.h"
 #include "BTTask_MoveToWaypoint.generated.h"
 
 /**
@@ -19,5 +20,7 @@ public:
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	
+	int lastWaypoint;
+
 	uint8 moving;
 };

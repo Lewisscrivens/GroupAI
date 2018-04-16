@@ -50,4 +50,5 @@ public:
 	float addRotation;
 	float direction;
 	float currentRotation;
+	float closeTime;
 };

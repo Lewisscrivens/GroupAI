@@ -63,4 +63,6 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void AEnemy::OpenDoor(ADoor* door)
 {
 	door->Interact(GetCapsuleComponent()->GetForwardVector());
+
+	
 }

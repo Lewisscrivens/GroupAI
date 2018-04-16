@@ -38,6 +38,7 @@ ADoor::ADoor()
 	addRotation = 0.0f;
 	direction = 0.0f;
 	currentRotation = 0.0f;
+	closeTime = 0.0f;
 }
 
 // Called when the game starts or when spawned
@@ -61,18 +62,28 @@ void ADoor::Tick(float DeltaTime)
 		Close(DeltaTime);
 	}
 
+	if (closeTime < GetGameTimeSinceCreation() && !closed)
+	{
+		opening = false;
+		closing = true;
+	}
+
 }
 
 void ADoor::Open(float deltaTime)
 {
-	currentRotation = door->RelativeRotation.Yaw;
+	int timeToStayOpen = 15;// 10 seconds.
+	closeTime = GetGameTimeSinceCreation() + timeToStayOpen;
+	closed = false;
 
+	currentRotation = door->RelativeRotation.Yaw;
 	addRotation = direction * deltaTime * 80;
 
 	if (FMath::IsNearlyEqual(currentRotation, maxRotation, 1.5f))
 	{
 		closing = false;
 		opening = false;
+		door->SetCanEverAffectNavigation(true);
 	}
 	else if (opening)
 	{
@@ -84,6 +95,7 @@ void ADoor::Open(float deltaTime)
 void ADoor::Close(float deltaTime)
 {
 	currentRotation = door->RelativeRotation.Yaw;
+	closed = true;
 
 	if (currentRotation > 0)
 	{
@@ -98,6 +110,7 @@ void ADoor::Close(float deltaTime)
 	{
 		closing = false;
 		opening = false;
+		door->SetCanEverAffectNavigation(false);
 	}
 	else if (closing)
 	{
@@ -118,19 +131,13 @@ void ADoor::Interact(FVector ForwardVector)
 
 	if (closed) 
 	{
-		closed = false;
 		closing = false;
 		opening = true;
-
-		door->SetCanEverAffectNavigation(true);
 	}
 	else 
 	{
-		opening = false;
-		closed = true;
+		opening = false;	
 		closing = true;
-
-		door->SetCanEverAffectNavigation(false);
 	}
 
 }

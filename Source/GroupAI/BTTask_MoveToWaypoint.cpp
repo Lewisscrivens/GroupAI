@@ -10,7 +10,6 @@
 #include "GroupAICharacter.h"
 #include <BrainComponent.h>
 #include <Engine/Engine.h>
-#include "Waypoint.h"
 #include <Kismet/GameplayStatics.h>
 #include <BehaviorTree/BTNode.h>
 #include <Object.h>
@@ -32,6 +31,12 @@ EBTNodeResult::Type UBTTask_MoveToWaypoint::ExecuteTask(UBehaviorTreeComponent& 
 	{
 		int random = FMath::RandRange(0, waypointInScene.Num() - 1);
 
+		// Used to avoid going to the same waypoint twice.
+		if (lastWaypoint == random)
+		{
+			random--;
+		}
+
 		for (AActor* waypoint : waypointInScene)
 		{
 			if (random == currentWaypoint)
@@ -41,6 +46,7 @@ EBTNodeResult::Type UBTTask_MoveToWaypoint::ExecuteTask(UBehaviorTreeComponent& 
 				if (!temp->beingVisited)
 				{
 					targetWaypointPointer = temp;
+					lastWaypoint = currentWaypoint;
 
 					break;
 				}
