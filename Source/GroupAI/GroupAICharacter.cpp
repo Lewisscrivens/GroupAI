@@ -13,6 +13,7 @@
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
+#include "Door.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -185,7 +186,9 @@ void AGroupAICharacter::LineTrace()
 		FColor lineTraceColour;
 		int lineTraceTimeLimit = 30; // Variable for controlling how long the line trace lasts.
 
-									 // On item that can be picked up. Check weight.
+		ADoor* doorRef = Cast<ADoor>(hit.Actor);
+									 
+		// On item that can be picked up. Check weight.
 		if (hit.bBlockingHit && hit.Component->IsSimulatingPhysics() && hit.Component->GetMass() < MaxPickupWeight)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Hit"))
@@ -194,6 +197,10 @@ void AGroupAICharacter::LineTrace()
 			// Grab the hit physics object.
 			HoldingObject = true;
 			GrabHandle->GrabComponent(hit.GetComponent(), hit.BoneName, hit.Location, true);
+		}
+		else if (hit.bBlockingHit && doorRef)
+		{
+			doorRef->Interact(FirstPersonCameraComponent->GetForwardVector());
 		}
 		else
 		{

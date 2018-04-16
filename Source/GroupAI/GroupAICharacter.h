@@ -14,13 +14,13 @@ class AGroupAICharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-		/** First person camera */
-		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		class UCameraComponent* FirstPersonCameraComponent;
+	/** First person camera */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class UCameraComponent* FirstPersonCameraComponent;
 
 	/** Location on gun mesh where projectiles should spawn. */
 	UPROPERTY(VisibleDefaultsOnly, Category = PhysicHandle)
-		class UPhysicsHandleComponent* GrabHandle;
+	class UPhysicsHandleComponent* GrabHandle;
 
 public:
 	AGroupAICharacter();
@@ -97,7 +97,6 @@ public:
 	/** Running?. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 		bool Running;
-
 
 protected:
 
