@@ -9,6 +9,8 @@
 #include <Engine/EngineTypes.h>
 #include <GameFramework/Actor.h>
 #include "Door.h"
+#include "AI.h"
+#include "Waypoint.h"
 #include "Enemy.generated.h"
 
 UCLASS()
@@ -40,6 +42,18 @@ public:
 
 public:
 
+	UPROPERTY(BlueprintReadOnly)
 	TArray<AActor*> waypointsInScene;
-	
+
+	UPROPERTY(BlueprintReadOnly)
+	ADoor* currentDoor;
+
+	UPROPERTY(BlueprintReadOnly)
+	AAI* enemyController;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool waitingForDoor;
+
+	UPROPERTY(BlueprintReadOnly)
+	AWaypoint* lastWaypoint;
 };

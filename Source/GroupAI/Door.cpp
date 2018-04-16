@@ -6,6 +6,14 @@
 #include "Components/BoxComponent.h"
 #include <Components/SceneComponent.h>
 #include <Components/StaticMeshComponent.h>
+#include <Components/ActorComponent.h>
+#include <AI/Navigation/NavRelevantInterface.h>
+#include <AI/Navigation/NavigationSystem.h>
+#include <GameFramework/Actor.h>
+#include <AI/Navigation/NavigationTypes.h>
+#include <Array.h>
+#include <Engine/World.h>
+#include <GameFramework/Character.h>
 
 // Sets default values
 ADoor::ADoor()
@@ -47,6 +55,21 @@ void ADoor::BeginPlay()
 	Super::BeginPlay();
 }
 
+void ADoor::RebuildNavMesh()
+{
+	UNavigationSystem* navMesh = Cast<UNavigationSystem>(GetWorld()->GetNavigationSystem());
+	if (navMesh)
+	{
+		//Make sure all dirty areas are instantly updated
+		navMesh->Tick(1.0f / navMesh->DirtyAreasUpdateFreq);
+
+		for (int32 i = 0; i < navMesh->NavDataSet.Num(); i++)
+		{
+			navMesh->NavDataSet[i]->EnsureBuildCompletion();
+		}
+	}
+}
+
 // Called every frame
 void ADoor::Tick(float DeltaTime)
 {
@@ -62,7 +85,7 @@ void ADoor::Tick(float DeltaTime)
 		Close(DeltaTime);
 	}
 
-	if (closeTime < GetGameTimeSinceCreation() && !closed)
+	if (closeTime < GetGameTimeSinceCreation() && !closed && !closing)
 	{
 		opening = false;
 		closing = true;
@@ -72,7 +95,7 @@ void ADoor::Tick(float DeltaTime)
 
 void ADoor::Open(float deltaTime)
 {
-	int timeToStayOpen = 15;// 10 seconds.
+	int timeToStayOpen = 15;// seconds.
 	closeTime = GetGameTimeSinceCreation() + timeToStayOpen;
 	closed = false;
 
@@ -81,9 +104,10 @@ void ADoor::Open(float deltaTime)
 
 	if (FMath::IsNearlyEqual(currentRotation, maxRotation, 1.5f))
 	{
+		door->SetCanEverAffectNavigation(true);
+
 		closing = false;
 		opening = false;
-		door->SetCanEverAffectNavigation(true);
 	}
 	else if (opening)
 	{
@@ -108,9 +132,10 @@ void ADoor::Close(float deltaTime)
 
 	if (FMath::IsNearlyEqual(currentRotation, 0.0f, 1.5f))
 	{
+		door->SetCanEverAffectNavigation(false);
+
 		closing = false;
 		opening = false;
-		door->SetCanEverAffectNavigation(false);
 	}
 	else if (closing)
 	{
@@ -119,9 +144,9 @@ void ADoor::Close(float deltaTime)
 	}
 }
 
-void ADoor::Interact(FVector ForwardVector)
+void ADoor::Interact(FVector from)
 {
-	dotProduct = FVector::DotProduct(root->GetForwardVector(), ForwardVector);
+	dotProduct = FVector::DotProduct(root->GetForwardVector(), from);
 
 	// get 1 or -1 from the the dot product for direction
 	direction = FMath::Sign(dotProduct);
@@ -139,5 +164,4 @@ void ADoor::Interact(FVector ForwardVector)
 		opening = false;	
 		closing = true;
 	}
-
 }

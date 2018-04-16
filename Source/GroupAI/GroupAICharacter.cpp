@@ -14,6 +14,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "Door.h"
+#include <GameFramework/Character.h>
+#include <Components/SceneComponent.h>
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -92,7 +94,7 @@ void AGroupAICharacter::Tick(float DeltaTime)
 	}
 	else if (Crouching)
 	{
-		Crouch();
+		StartCrouch();
 	}
 }
 
@@ -200,7 +202,7 @@ void AGroupAICharacter::LineTrace()
 		}
 		else if (hit.bBlockingHit && doorRef)
 		{
-			doorRef->Interact(FirstPersonCameraComponent->GetForwardVector());
+			doorRef->Interact(GetFirstPersonCameraComponent()->GetForwardVector());
 		}
 		else
 		{
@@ -251,7 +253,7 @@ void AGroupAICharacter::CrouchTrigger()
 	}
 }
 
-void AGroupAICharacter::Crouch()
+void AGroupAICharacter::StartCrouch()
 {
 	if (Running) StopRunning();
 

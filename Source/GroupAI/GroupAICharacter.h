@@ -112,12 +112,12 @@ protected:
 	/** Handles moving forward/backward */
 	void MoveForward(float Val);
 
-	/** Handles stafing movement, left and right */
+	/** Handles strafing movement, left and right */
 	void MoveRight(float Val);
 
 	/** Pickup a projectile from the gamescene. */
 	void CrouchTrigger();
-	void Crouch();
+	void StartCrouch();
 	void Uncrouch();
 
 	void StartRunning();

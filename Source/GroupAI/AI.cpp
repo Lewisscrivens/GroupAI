@@ -7,8 +7,10 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
 #include <BehaviorTree/BlackboardData.h>
-#include "Enemy.h"
 #include <BehaviorTree/Blackboard/BlackboardKeyType_Bool.h>
+#include <GameFramework/Controller.h>
+#include "Enemy.h"
+
 
 
 AAI::AAI()
@@ -44,8 +46,11 @@ AEnemy* AAI::GetEnemy()
 // Reset the moving value in the blackboard.
 void AAI::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
 {
-	targetWaypoint->beingVisited = false;
+	if (!GetEnemy()->waitingForDoor)
+	{
+		targetWaypoint->beingVisited = false;
 
-	moving = blackboardComponent->GetKeyID("Moving");
-	bool result = blackboardComponent->SetValue<UBlackboardKeyType_Bool>(moving, false);
+		moving = blackboardComponent->GetKeyID("Moving");
+		bool result = blackboardComponent->SetValue<UBlackboardKeyType_Bool>(moving, false);
+	}
 }

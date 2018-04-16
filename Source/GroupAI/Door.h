@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include <Components/SceneComponent.h>
+#include "Enemy.h"
+#include <GameFramework/Character.h>
 #include "Door.generated.h"
 
 UCLASS()
@@ -18,6 +20,10 @@ protected:
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+private:
+
+	void RebuildNavMesh();
 
 public:
 
@@ -36,7 +42,7 @@ public:
 	class UStaticMeshComponent* door;
 
 	UFUNCTION()
-	void Interact(FVector ForwardVector);
+	void Interact(FVector from);
 
 	UPROPERTY(BlueprintReadOnly)
 	bool opening;

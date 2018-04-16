@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-#include "Enemy.h"
 #include "Waypoint.h"
 #include "AI.generated.h"
 
@@ -29,7 +28,7 @@ public:
 	AAI();
 
 	virtual void Possess(APawn* inPawn) override;
-	AEnemy* GetEnemy();
+	class AEnemy* GetEnemy();
 
 	AWaypoint* targetWaypoint;
 	uint8 ID;
