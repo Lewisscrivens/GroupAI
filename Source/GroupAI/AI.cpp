@@ -32,7 +32,7 @@ void AAI::Possess(APawn* inPawn)
 	
 		ID = blackboardComponent->GetKeyID("Target");
 
-		behaviourTreeComponent->StartTree(*enemy->enemyBehaviour);
+		behaviourTreeComponent->StartTree(*enemy->enemyBehaviour); 
 	}
 }
 

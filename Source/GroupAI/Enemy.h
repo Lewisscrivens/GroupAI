@@ -8,7 +8,7 @@
 #include <Components/PrimitiveComponent.h>
 #include <Engine/EngineTypes.h>
 #include <GameFramework/Actor.h>
-#include <Components/SphereComponent.h>
+#include "Door.h"
 #include "Enemy.generated.h"
 
 UCLASS()
@@ -23,16 +23,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = Behaviour)
 	class UBehaviorTree* enemyBehaviour;
 
-	UPROPERTY(EditAnywhere, Category = Collision)
-	class USphereComponent* doorCollider;
-
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	UFUNCTION()
-	void ObsticalHit(class UPrimitiveComponent* hitComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector impulse, const FHitResult & hit);
 
 public:
 	// Called every frame
@@ -40,6 +34,9 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UFUNCTION(BlueprintCallable)
+	void OpenDoor(ADoor* door);
 
 public:
 

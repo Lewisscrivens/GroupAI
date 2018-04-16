@@ -9,8 +9,10 @@
 #include <Engine/Engine.h>
 #include <BehaviorTree/BehaviorTree.h>
 #include <BehaviorTree/BlackboardData.h>
-#include "Door.h"
-#include <Components/PrimitiveComponent.h>
+#include <GameFramework/Character.h>
+#include <Components/SceneComponent.h>
+#include <AIController.h>
+#include <NoExportTypes.h>
 #include <Engine/EngineTypes.h>
 
 // Sets default values
@@ -18,11 +20,6 @@ AEnemy::AEnemy()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	doorCollider = CreateDefaultSubobject<USphereComponent>(TEXT("DoorCollider"));
-	doorCollider->SetupAttachment(GetCapsuleComponent());
-	doorCollider->RelativeLocation = FVector(70.0f, 0.0f, 0.0f);
-	doorCollider->SetSphereRadius(35.0f);
 }
 
 // Called when the game starts or when spawned
@@ -33,14 +30,14 @@ void AEnemy::BeginPlay()
 	// Fill way points array with all way points in the scene.
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWaypoint::StaticClass(), waypointsInScene);
 
-	doorCollider->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	doorCollider->SetCollisionResponseToChannel(ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
+	//doorCollider->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	//doorCollider->SetCollisionResponseToChannel(ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
 
 	//Mirror the method on component hit to detect when a door is in the way.
-	doorCollider->OnComponentHit.AddDynamic(this, &AEnemy::ObsticalHit);
+	//doorCollider->OnComponentHit.AddDynamic(this, &AEnemy::ObsticalHit);
 }
 
-void AEnemy::ObsticalHit(class UPrimitiveComponent* hitComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector impulse, const FHitResult & hit)
+/*void AEnemy::ObsticalHit(class UPrimitiveComponent* hitComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector impulse, const FHitResult & hit)
 //(class UPrimitiveComponent* primComp, AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	ADoor* door = Cast<ADoor>(OtherActor);
@@ -49,7 +46,7 @@ void AEnemy::ObsticalHit(class UPrimitiveComponent* hitComponent, class AActor* 
 	{
 		door->Interact(GetCapsuleComponent()->GetForwardVector());
 	}
-}
+}*/
 
 // Called every frame
 void AEnemy::Tick(float DeltaTime)
@@ -61,4 +58,9 @@ void AEnemy::Tick(float DeltaTime)
 void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+}
+
+void AEnemy::OpenDoor(ADoor* door)
+{
+	door->Interact(GetCapsuleComponent()->GetForwardVector());
 }

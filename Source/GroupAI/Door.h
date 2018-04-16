@@ -38,8 +38,11 @@ public:
 	UFUNCTION()
 	void Interact(FVector ForwardVector);
 
+	UPROPERTY(BlueprintReadOnly)
 	bool opening;
 	bool closing;
+
+	UPROPERTY(BlueprintReadOnly)
 	bool closed;
 
 	float dotProduct;

@@ -122,12 +122,15 @@ void ADoor::Interact(FVector ForwardVector)
 		closing = false;
 		opening = true;
 
+		door->SetCanEverAffectNavigation(true);
 	}
 	else 
 	{
 		opening = false;
 		closed = true;
 		closing = true;
+
+		door->SetCanEverAffectNavigation(false);
 	}
 
 }
