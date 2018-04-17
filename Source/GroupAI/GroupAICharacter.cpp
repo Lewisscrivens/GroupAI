@@ -67,6 +67,7 @@ AGroupAICharacter::AGroupAICharacter()
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
 	GrabHandle = CreateDefaultSubobject<UPhysicsHandleComponent>(TEXT("PhysicHandle"));
+
 	// Note: The ProjectileClass and the skeletal mesh/anim blueprints for Mesh1P, FP_Gun, and VR_Gun 
 	// are set in the derived blueprint asset named MyCharacter to avoid direct content references in C++.
 }

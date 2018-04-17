@@ -57,4 +57,5 @@ public:
 	float direction;
 	float currentRotation;
 	float closeTime;
+	int doorStayOpenFor;//seconds.
 };

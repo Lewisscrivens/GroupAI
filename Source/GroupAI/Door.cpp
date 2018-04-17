@@ -33,7 +33,6 @@ ADoor::ADoor()
 	{
 		door->SetStaticMesh(DoorMesh.Object);
 		door->SetRelativeLocation(FVector(0.0f, 50.0f, -100.0f));
-		door->SetWorldScale3D(FVector(1.f));
 	}
 
 	closed = true;
@@ -47,6 +46,7 @@ ADoor::ADoor()
 	direction = 0.0f;
 	currentRotation = 0.0f;
 	closeTime = 0.0f;
+	doorStayOpenFor = 15;
 }
 
 // Called when the game starts or when spawned
@@ -95,12 +95,10 @@ void ADoor::Tick(float DeltaTime)
 
 void ADoor::Open(float deltaTime)
 {
-	int timeToStayOpen = 15;// seconds.
-	closeTime = GetGameTimeSinceCreation() + timeToStayOpen;
 	closed = false;
 
 	currentRotation = door->RelativeRotation.Yaw;
-	addRotation = direction * deltaTime * 80;
+	addRotation = direction * deltaTime * 100;
 
 	if (FMath::IsNearlyEqual(currentRotation, maxRotation, 1.5f))
 	{
@@ -158,6 +156,8 @@ void ADoor::Interact(FVector from)
 	{
 		closing = false;
 		opening = true;
+
+		closeTime = GetGameTimeSinceCreation() + doorStayOpenFor;
 	}
 	else 
 	{
