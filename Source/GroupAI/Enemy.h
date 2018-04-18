@@ -42,7 +42,6 @@ public:
 
 public:
 
-	UPROPERTY(BlueprintReadOnly)
 	TArray<AActor*> waypointsInScene;
 
 	UPROPERTY(BlueprintReadOnly)

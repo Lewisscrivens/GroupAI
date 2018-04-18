@@ -21,10 +21,6 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-private:
-
-	void RebuildNavMesh();
-
 public:
 
 	// Called every frame
@@ -58,4 +54,12 @@ public:
 	float currentRotation;
 	float closeTime;
 	int doorStayOpenFor;//seconds.
+
+	// Variables for locking system.
+	UPROPERTY(EditAnywhere, Category = Door)
+	bool needsKeyCard;
+
+	// Variables for locking system.
+	UPROPERTY(EditAnywhere, Category = Door)
+	bool exitDoor;
 };

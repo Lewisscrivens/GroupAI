@@ -57,11 +57,17 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AEnemy::OpenDoor(ADoor* door)
 {
-	currentDoor = door;
-	waitingForDoor = true;
-	lastWaypoint = enemyController->targetWaypoint;
+	if (door)
+	{
+		if (!door->exitDoor)
+		{
+			currentDoor = door;
+			waitingForDoor = true;
+			lastWaypoint = enemyController->targetWaypoint;
 
-	enemyController->StopMovement();
+			enemyController->StopMovement();
 
-	door->Interact(enemyController->GetEnemy()->GetCapsuleComponent()->GetForwardVector());
+			door->Interact(enemyController->GetEnemy()->GetCapsuleComponent()->GetForwardVector());
+		}
+	}
 }

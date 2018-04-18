@@ -55,21 +55,6 @@ void ADoor::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ADoor::RebuildNavMesh()
-{
-	UNavigationSystem* navMesh = Cast<UNavigationSystem>(GetWorld()->GetNavigationSystem());
-	if (navMesh)
-	{
-		//Make sure all dirty areas are instantly updated
-		navMesh->Tick(1.0f / navMesh->DirtyAreasUpdateFreq);
-
-		for (int32 i = 0; i < navMesh->NavDataSet.Num(); i++)
-		{
-			navMesh->NavDataSet[i]->EnsureBuildCompletion();
-		}
-	}
-}
-
 // Called every frame
 void ADoor::Tick(float DeltaTime)
 {

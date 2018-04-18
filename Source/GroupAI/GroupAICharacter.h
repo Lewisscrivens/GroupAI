@@ -99,6 +99,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 		bool Running;
 
+	/** Has Key card?. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+	bool hasKeyCard;
+
+	bool exitOpen;
+
 protected:
 
 	/** Throw a projectile picked up from the gamescene. */

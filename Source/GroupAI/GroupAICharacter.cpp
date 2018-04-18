@@ -16,6 +16,7 @@
 #include "Door.h"
 #include <GameFramework/Character.h>
 #include <Components/SceneComponent.h>
+#include "KeyCard.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -44,6 +45,9 @@ AGroupAICharacter::AGroupAICharacter()
 	CrouchedHeight = 42.0f;
 	CrouchSpeed = 5.0f;
 	CurrentPosition = StandingHeight;
+
+	hasKeyCard = false;
+	exitOpen = false;
 
 	// Running variables.
 	WalkSpeed = 300.0f;
@@ -162,7 +166,8 @@ void AGroupAICharacter::PickUp()
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Tried pickup."));
 		}
-		LineTrace(); // Run a line trace to check if the item can be picked up.
+		// Run a line trace to check if the item can be picked up.
+		LineTrace(); 
 	}
 }
 
@@ -170,7 +175,9 @@ void AGroupAICharacter::PickUp()
 void AGroupAICharacter::LineTrace()
 {
 	// Camera offset.
-	float startDistance = 100.0f;
+	float startDistance = 20.0f;
+
+	bool PrintHitName = true;
 
 	FHitResult hit;
 	const FVector Start = FirstPersonCameraComponent->GetComponentLocation() + (FirstPersonCameraComponent->GetForwardVector() * startDistance); // Start position from where the player is, + Translation to put the start of the vector infront of the player.
@@ -180,37 +187,65 @@ void AGroupAICharacter::LineTrace()
 	TraceParams.bTraceComplex = true;
 	//Ignore Actors
 	TraceParams.AddIgnoredComponent(GetCapsuleComponent());// Ignore the player capsule.
-
 	GetWorld()->LineTraceSingleByChannel(hit, Start, End, ECC_Camera, TraceParams);
 
-	// Show debug lines for line trace.
-	if (DebugEnabled)
+	FColor lineTraceColour = FColor::Red;
+	int lineTraceTimeLimit = 30; // Variable for controlling how long the line trace lasts.
+	
+	if (hit.bBlockingHit)
 	{
-		FColor lineTraceColour;
-		int lineTraceTimeLimit = 30; // Variable for controlling how long the line trace lasts.
-
+		AKeyCard* keyRef = Cast<AKeyCard>(hit.Actor);
 		ADoor* doorRef = Cast<ADoor>(hit.Actor);
-									 
-		// On item that can be picked up. Check weight.
-		if (hit.bBlockingHit && hit.Component->IsSimulatingPhysics() && hit.Component->GetMass() < MaxPickupWeight)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Hit"))
-				lineTraceColour = FColor::Green;
 
+		if (keyRef)
+		{
+			keyRef->Destroy();
+			hasKeyCard = true;
+		}
+		else if (doorRef)
+		{
+			if (!doorRef->exitDoor)
+			{
+				if (doorRef->needsKeyCard && hasKeyCard)
+				{
+					doorRef->Interact(GetFirstPersonCameraComponent()->GetForwardVector());
+				}
+				else if (!doorRef->needsKeyCard)
+				{
+					doorRef->Interact(GetFirstPersonCameraComponent()->GetForwardVector());
+				}
+			}
+			else if (doorRef->exitDoor && exitOpen)
+			{
+				// END GAME CODE HERE.
+			}
+		}
+		// On item that can be picked up. Check weight.
+		else if (hit.Component->IsSimulatingPhysics() && hit.Component->GetMass() < MaxPickupWeight && !keyRef)
+		{
 			// Grab the hit physics object.
 			HoldingObject = true;
 			GrabHandle->GrabComponent(hit.GetComponent(), hit.BoneName, hit.Location, true);
 		}
-		else if (hit.bBlockingHit && doorRef)
-		{
-			doorRef->Interact(GetFirstPersonCameraComponent()->GetForwardVector());
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Not hit"))
-				lineTraceColour = FColor::Red;
-		}
 
+		UE_LOG(LogTemp, Warning, TEXT("Hit"))
+		lineTraceColour = FColor::Green;
+
+		if (PrintHitName)
+		{
+			if (hit.Component != NULL)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, hit.Component->GetName());
+			}
+			else if (hit.Actor != NULL)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, hit.Actor->GetName());
+			}
+		}	
+	}
+	// Show debug lines for line trace.
+	if (DebugEnabled)
+	{
 		DrawDebugLine(GetWorld(), hit.TraceStart, hit.TraceEnd, lineTraceColour, false, lineTraceTimeLimit, 0.0f, 1.0f);
 	}
 }

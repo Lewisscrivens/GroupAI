@@ -20,16 +20,16 @@ EBTNodeResult::Type UBTTask_MoveToWaypoint::ExecuteTask(UBehaviorTreeComponent& 
 	// Return possessed controller.
 	AAI* enemy = Cast<AAI>(OwnerComp.GetAIOwner());
 	// Fill way points array with all way points in the scene.
-	TArray<AActor*> waypointInScene = enemy->GetEnemy()->waypointsInScene;
+	TArray<AActor*> patrolWaypoints = enemy->GetEnemy()->waypointsInScene;
 
 	AWaypoint* targetWaypointPointer = 0;
 
 	int currentWaypoint = 0;
 
 	// Move to way points 
-	if (enemy != NULL)
+	if (enemy)
 	{
-		int random = FMath::RandRange(0, waypointInScene.Num() - 1);
+		int random = FMath::RandRange(0, patrolWaypoints.Num() - 1);
 
 		// Used to avoid going to the same waypoint twice.
 		if (lastWaypoint == random)
@@ -37,21 +37,20 @@ EBTNodeResult::Type UBTTask_MoveToWaypoint::ExecuteTask(UBehaviorTreeComponent& 
 			random--;
 		}
 
-		for (AActor* waypoint : waypointInScene)
+		for (AActor* waypointActor : patrolWaypoints)
 		{
 			if (random == currentWaypoint)
 			{
-				AWaypoint* temp = Cast<AWaypoint>(waypoint);
-				
-				if (!temp->beingVisited)
+				AWaypoint* waypoint = Cast<AWaypoint>(waypointActor);
+
+				if (!waypoint->beingVisited)
 				{
-					targetWaypointPointer = temp;
+					targetWaypointPointer = waypoint;
 					lastWaypoint = currentWaypoint;
 
 					break;
 				}
 			}
-
 			currentWaypoint++;
 		}
 
