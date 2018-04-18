@@ -5,6 +5,7 @@
 #include <Kismet/GameplayStatics.h>
 #include <GameFramework/Actor.h>
 #include <Engine/Engine.h>
+#include "Door.h"
 #include <BehaviorTree/BehaviorTree.h>
 #include <BehaviorTree/BlackboardData.h>
 #include <GameFramework/Character.h>

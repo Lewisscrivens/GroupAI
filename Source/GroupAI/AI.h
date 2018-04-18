@@ -28,8 +28,11 @@ public:
 	AAI();
 
 	virtual void Possess(APawn* inPawn) override;
-	class AEnemy* GetEnemy();
 
+	UFUNCTION(BlueprintCallable)
+	void InspectLocation(FVector door);
+
+	class AEnemy* GetEnemy();
 	AWaypoint* targetWaypoint;
 	uint8 ID;
 	uint8 moving;

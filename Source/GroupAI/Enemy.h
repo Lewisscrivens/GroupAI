@@ -8,7 +8,6 @@
 #include <Components/PrimitiveComponent.h>
 #include <Engine/EngineTypes.h>
 #include <GameFramework/Actor.h>
-#include "Door.h"
 #include "AI.h"
 #include "Waypoint.h"
 #include "Enemy.generated.h"
@@ -38,14 +37,14 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION(BlueprintCallable)
-	void OpenDoor(ADoor* door);
+	void OpenDoor(class ADoor* door);
 
 public:
 
 	TArray<AActor*> waypointsInScene;
 
 	UPROPERTY(BlueprintReadOnly)
-	ADoor* currentDoor;
+	class ADoor* currentDoor;
 
 	UPROPERTY(BlueprintReadOnly)
 	AAI* enemyController;

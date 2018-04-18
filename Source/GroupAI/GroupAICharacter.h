@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include <Components/CapsuleComponent.h>
+#include <ObjectMacros.h>
 #include "GroupAICharacter.generated.h"
 
 
@@ -111,6 +112,7 @@ protected:
 	void Throw();
 
 	/** Pickup a projectile from the gamescene. */
+	UFUNCTION(BlueprintCallable)
 	void PickUp();
 
 	/** Line trace from camera + start point to the end point. */

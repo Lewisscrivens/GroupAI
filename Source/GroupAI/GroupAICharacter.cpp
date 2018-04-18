@@ -61,8 +61,8 @@ AGroupAICharacter::AGroupAICharacter()
 	ThrowForce = 1000.0f;
 
 	// Setting the max grab distance.
-	MaxGrabDistance = 250.0f;
-	MaxPickupWeight = 100.0f;
+	MaxGrabDistance = 200.0f;
+	MaxPickupWeight = 50.0f;
 
 	// Create a CameraComponent	
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
@@ -121,7 +121,7 @@ void AGroupAICharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 
 	// Bind player interaction events.
 	PlayerInputComponent->BindAction("Throw", IE_Pressed, this, &AGroupAICharacter::Throw);
-	PlayerInputComponent->BindAction("PickUp", IE_Pressed, this, &AGroupAICharacter::PickUp);
+	//	NOW DONE IN BP	PlayerInputComponent->BindAction("PickUp", IE_Pressed, this, &AGroupAICharacter::PickUp);
 
 	// Bind movement events
 	PlayerInputComponent->BindAxis("MoveForward", this, &AGroupAICharacter::MoveForward);
@@ -225,7 +225,7 @@ void AGroupAICharacter::LineTrace()
 		{
 			// Grab the hit physics object.
 			HoldingObject = true;
-			GrabHandle->GrabComponent(hit.GetComponent(), hit.BoneName, hit.Location, true);
+			GrabHandle->GrabComponentAtLocation(hit.GetComponent(), hit.BoneName, hit.Location);
 		}
 
 		UE_LOG(LogTemp, Warning, TEXT("Hit"))

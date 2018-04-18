@@ -38,6 +38,12 @@ void AAI::Possess(APawn* inPawn)
 	}
 }
 
+void AAI::InspectLocation(FVector door)
+{
+	StopMovement();
+	MoveToLocation(door);
+}
+
 AEnemy* AAI::GetEnemy()
 {
 	return Cast<AEnemy>(GetPawn());

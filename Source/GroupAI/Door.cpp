@@ -62,12 +62,12 @@ void ADoor::Tick(float DeltaTime)
 
 	if (opening)
 	{
-		Open(DeltaTime);
+		Open();
 	}
 
 	if (closing)
 	{
-		Close(DeltaTime);
+		Close();
 	}
 
 	if (closeTime < GetGameTimeSinceCreation() && !closed && !closing)
@@ -78,12 +78,12 @@ void ADoor::Tick(float DeltaTime)
 
 }
 
-void ADoor::Open(float deltaTime)
+void ADoor::Open()
 {
 	closed = false;
 
 	currentRotation = door->RelativeRotation.Yaw;
-	addRotation = direction * deltaTime * 100;
+	addRotation = direction;
 
 	if (FMath::IsNearlyEqual(currentRotation, maxRotation, 1.5f))
 	{
@@ -99,18 +99,18 @@ void ADoor::Open(float deltaTime)
 	}
 }
 
-void ADoor::Close(float deltaTime)
+void ADoor::Close()
 {
 	currentRotation = door->RelativeRotation.Yaw;
 	closed = true;
 
 	if (currentRotation > 0)
 	{
-		addRotation = -deltaTime * 80;
+		addRotation = -1;
 	}
 	else
 	{
-		addRotation = deltaTime * 80;
+		addRotation = 1;
 	}
 
 	if (FMath::IsNearlyEqual(currentRotation, 0.0f, 1.5f))
