@@ -74,6 +74,7 @@ void ADoor::Tick(float DeltaTime)
 	{
 		opening = false;
 		closing = true;
+		door->SetCanEverAffectNavigation(false);
 	}
 
 }
@@ -83,9 +84,9 @@ void ADoor::Open()
 	closed = false;
 
 	currentRotation = door->RelativeRotation.Yaw;
-	addRotation = direction;
+	addRotation = direction * 2;
 
-	if (FMath::IsNearlyEqual(currentRotation, maxRotation, 1.5f))
+	if (FMath::IsNearlyEqual(currentRotation, maxRotation, 2.0f))
 	{
 		door->SetCanEverAffectNavigation(true);
 
@@ -106,17 +107,15 @@ void ADoor::Close()
 
 	if (currentRotation > 0)
 	{
-		addRotation = -1;
+		addRotation = -2;
 	}
 	else
 	{
-		addRotation = 1;
+		addRotation = 2;
 	}
 
 	if (FMath::IsNearlyEqual(currentRotation, 0.0f, 1.5f))
 	{
-		door->SetCanEverAffectNavigation(false);
-
 		closing = false;
 		opening = false;
 	}
@@ -142,7 +141,8 @@ void ADoor::Interact(FVector from)
 		closing = false;
 		opening = true;
 
-		closeTime = GetGameTimeSinceCreation() + doorStayOpenFor;
+		if(!needsKeyCard) closeTime = GetGameTimeSinceCreation() + doorStayOpenFor;
+		else closeTime = GetGameTimeSinceCreation() + 3.0f;
 	}
 	else 
 	{

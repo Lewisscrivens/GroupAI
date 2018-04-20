@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AIController.h"
 #include "Waypoint.h"
+#include <Perception/AIPerceptionTypes.h>
 #include "AI.generated.h"
 
 /**
@@ -23,17 +24,32 @@ class GROUPAI_API AAI : public AAIController
 	UPROPERTY()
 	class UBehaviorTreeComponent* behaviourTreeComponent;
 
+	UPROPERTY()
+	class UAISenseConfig_Sight* sightConfig;
+
 public:
 
 	AAI();
 
 	virtual void Possess(APawn* inPawn) override;
 
-	UFUNCTION(BlueprintCallable)
-	void InspectLocation(FVector door);
+	UFUNCTION()
+	void OnTargetPerceptionUpdated(class AActor* Actor, FAIStimulus Stimulus);
 
+	UFUNCTION()
 	class AEnemy* GetEnemy();
+
 	AWaypoint* targetWaypoint;
 	uint8 ID;
 	uint8 moving;
+
+	FAIRequestID patrol;
+	FAIRequestID chase;
+
+private:
+
+	float runSpeed;
+	float walkSpeed;
+	bool canSeePlayer;
+	bool chasingPlayer;
 };

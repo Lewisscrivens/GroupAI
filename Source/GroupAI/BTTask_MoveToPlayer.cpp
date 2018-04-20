@@ -18,7 +18,7 @@ EBTNodeResult::Type UBTTask_MoveToPlayer::ExecuteTask(UBehaviorTreeComponent& Ow
 
 	if (player)
 	{
-		enemy->MoveToActor(player, 5.0f, true, true, true, 0, true);
+		enemy->chase = enemy->MoveToActor(player, 5.0f, true, true, true, 0, true);
 		return EBTNodeResult::Succeeded;
 	}
 

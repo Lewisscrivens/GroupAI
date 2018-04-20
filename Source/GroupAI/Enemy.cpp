@@ -7,13 +7,17 @@
 #include <Engine/Engine.h>
 #include "Door.h"
 #include <BehaviorTree/BehaviorTree.h>
-#include <BehaviorTree/BlackboardData.h>
 #include <GameFramework/Character.h>
 #include <Components/SceneComponent.h>
 #include <AIController.h>
 #include <NoExportTypes.h>
 #include <Engine/EngineTypes.h>
 #include <GameFramework/Pawn.h>
+#include "BehaviorTree/BlackboardComponent.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
+#include <BehaviorTree/BlackboardData.h>
+#include "AI.h"
+#include <Platform.h>
 
 // Sets default values
 AEnemy::AEnemy()
@@ -41,10 +45,9 @@ void AEnemy::Tick(float DeltaTime)
 
 	if (currentDoor && waitingForDoor)
 	{
-		if (!currentDoor->closing && !currentDoor->opening && lastWaypoint)
+		if (!currentDoor->closing && !currentDoor->opening)
 		{
-			enemyController->MoveToActor(lastWaypoint, 5.0f, true, true, true, 0, true);
-			lastWaypoint = NULL;
+			enemyController->ResumeMove(FAIRequestID::CurrentRequest);
 			waitingForDoor = false;
 		}
 	}
@@ -64,9 +67,8 @@ void AEnemy::OpenDoor(ADoor* door)
 		{
 			currentDoor = door;
 			waitingForDoor = true;
-			lastWaypoint = enemyController->targetWaypoint;
 
-			enemyController->StopMovement();
+			enemyController->PauseMove(FAIRequestID::CurrentRequest);
 
 			door->Interact(enemyController->GetEnemy()->GetCapsuleComponent()->GetForwardVector());
 		}

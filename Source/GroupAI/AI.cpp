@@ -7,10 +7,17 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
 #include <BehaviorTree/BlackboardData.h>
-#include <BehaviorTree/Blackboard/BlackboardKeyType_Bool.h>
 #include <GameFramework/Controller.h>
+#include <GameFramework/Actor.h>
+#include "Perception/AISense.h"
+#include "Perception/AIPerceptionSystem.h"
+#include <Perception/AIPerceptionComponent.h>
+#include <Perception/AIPerceptionTypes.h>
+#include <Perception/AISense_Sight.h>
+#include <Perception/AISenseConfig_Sight.h>
+#include <Engine/Engine.h>
 #include "Enemy.h"
-
+#include "GroupAICharacter.h"
 
 
 AAI::AAI()
@@ -19,7 +26,16 @@ AAI::AAI()
 
 	behaviourTreeComponent = CreateDefaultSubobject<UBehaviorTreeComponent>(TEXT("BehaviourComponent"));
 
+	// Setup the perception component
+	PerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("PerceptionComponent"));
+	sightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
+	PerceptionComponent->ConfigureSense(*sightConfig);
+	PerceptionComponent->SetDominantSense(sightConfig->GetSenseImplementation());
+	PerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AAI::OnTargetPerceptionUpdated);
+
 	targetWaypoint = 0;
+	canSeePlayer = false;
+	chasingPlayer = false;
 }
 
 void AAI::Possess(APawn* inPawn)
@@ -36,12 +52,46 @@ void AAI::Possess(APawn* inPawn)
 
 		behaviourTreeComponent->StartTree(*enemy->enemyBehaviour); 
 	}
+
+	if (PerceptionComponent)
+	{
+		sightConfig->SightRadius = 1000.0;
+		sightConfig->LoseSightRadius = 1200.0;
+		sightConfig->PeripheralVisionAngleDegrees = 100.0f;
+		sightConfig->DetectionByAffiliation.bDetectEnemies = true;
+		sightConfig->DetectionByAffiliation.bDetectNeutrals = true;
+		sightConfig->DetectionByAffiliation.bDetectFriendlies = true;
+		PerceptionComponent->ConfigureSense(*sightConfig);
+	}
+
+	walkSpeed = GetEnemy()->GetCharacterMovement()->MaxWalkSpeed;
+	runSpeed = walkSpeed * 2;
 }
 
-void AAI::InspectLocation(FVector door)
+void AAI::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
-	StopMovement();
-	MoveToLocation(door);
+	AGroupAICharacter* player = Cast<AGroupAICharacter>(Actor);
+	uint8 canSeePlayerKey = blackboardComponent->GetKeyID("CanSeePlayer");
+
+	if (player)
+	{
+		if (Stimulus.IsActive())
+		{
+			GetEnemy()->GetCharacterMovement()->MaxWalkSpeed = runSpeed;
+			canSeePlayer = true;
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Can See you."));
+			chasingPlayer = true;
+		}
+		else
+		{
+			GetEnemy()->GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
+			canSeePlayer = false;
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Lost you."));
+
+			StopMovement();
+		}
+		blackboardComponent->SetValue<UBlackboardKeyType_Bool>(canSeePlayerKey, canSeePlayer);
+	}
 }
 
 AEnemy* AAI::GetEnemy()
@@ -52,11 +102,12 @@ AEnemy* AAI::GetEnemy()
 // Reset the moving value in the blackboard.
 void AAI::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
 {
-	if (!GetEnemy()->waitingForDoor)
+	if (chasingPlayer)
 	{
-		targetWaypoint->beingVisited = false;
-
 		moving = blackboardComponent->GetKeyID("Moving");
-		bool result = blackboardComponent->SetValue<UBlackboardKeyType_Bool>(moving, false);
+
+		targetWaypoint->beingVisited = false;
+		blackboardComponent->SetValue<UBlackboardKeyType_Bool>(moving, false);
+		blackboardComponent->SetValue<UBlackboardKeyType_Bool>(blackboardComponent->GetKeyID("Inspect"), true);
 	}
 }

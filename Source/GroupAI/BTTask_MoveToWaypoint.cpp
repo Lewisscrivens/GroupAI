@@ -54,17 +54,13 @@ EBTNodeResult::Type UBTTask_MoveToWaypoint::ExecuteTask(UBehaviorTreeComponent& 
 			currentWaypoint++;
 		}
 
-		enemy->MoveToActor(targetWaypointPointer, 5.0f, true, true, true, 0, true);
+		enemy->patrol = enemy->MoveToActor(targetWaypointPointer, 5.0f, true, true, true, 0, true);
 		targetWaypointPointer->beingVisited = true;
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Going to " + targetWaypointPointer->GetName()));
 
 		// Set the player is moving.
 		moving = OwnerComp.GetBlackboardComponent()->GetKeyID("Moving");
 		bool result = OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(moving, true);
-
-		// Initialise the movement variable to false.
-		uint8 moveKey = OwnerComp.GetBlackboardComponent()->GetKeyID("Waiting");
-		OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(moveKey, false);
 
 		enemy->targetWaypoint = targetWaypointPointer;
 
