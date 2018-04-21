@@ -17,6 +17,8 @@
 #include <GameFramework/Character.h>
 #include <Components/SceneComponent.h>
 #include "KeyCard.h"
+#include <TransformVectorized.h>
+#include <WorldCollision.h>
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -41,8 +43,8 @@ AGroupAICharacter::AGroupAICharacter()
 	// Crouching variables Initialization.
 	Crouching = false;
 	Crouched = false;
-	StandingHeight = 94.0f;
-	CrouchedHeight = 42.0f;
+	StandingHeight = 80.0f;
+	CrouchedHeight = 32.0f;
 	CrouchSpeed = 5.0f;
 	CurrentPosition = StandingHeight;
 
@@ -63,6 +65,9 @@ AGroupAICharacter::AGroupAICharacter()
 	// Setting the max grab distance.
 	MaxGrabDistance = 200.0f;
 	MaxPickupWeight = 50.0f;
+
+	// By default the player is not hidden.
+	hidden = false;
 
 	// Create a CameraComponent	
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
@@ -167,87 +172,103 @@ void AGroupAICharacter::PickUp()
 			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Tried pickup."));
 		}
 		// Run a line trace to check if the item can be picked up.
-		LineTrace(); 
+		LineTrace(0); 
 	}
 }
 
-// Line trace code, could be useful for something else.
-void AGroupAICharacter::LineTrace()
+// Line trace, process: 0 = Pickup, 1 = Check for ceiling when crouching.
+bool AGroupAICharacter::LineTrace(int process)
 {
 	// Camera offset.
-	float startDistance = 20.0f;
-
+	float startDistance = 5.0f;
 	bool PrintHitName = true;
-
 	FHitResult hit;
-	const FVector Start = FirstPersonCameraComponent->GetComponentLocation() + (FirstPersonCameraComponent->GetForwardVector() * startDistance); // Start position from where the player is, + Translation to put the start of the vector infront of the player.
-	const FVector End = Start + (FirstPersonCameraComponent->GetForwardVector() * MaxGrabDistance);// (fireDistance) units in facing direction in front of the camera.
-
+	FVector Start;
+	FVector End;
 	FCollisionQueryParams TraceParams;
 	TraceParams.bTraceComplex = true;
 	//Ignore Actors
 	TraceParams.AddIgnoredComponent(GetCapsuleComponent());// Ignore the player capsule.
-	GetWorld()->LineTraceSingleByChannel(hit, Start, End, ECC_Camera, TraceParams);
 
 	FColor lineTraceColour = FColor::Red;
 	int lineTraceTimeLimit = 30; // Variable for controlling how long the line trace lasts.
 	
-	if (hit.bBlockingHit)
+	if (process == 0)
 	{
-		AKeyCard* keyRef = Cast<AKeyCard>(hit.Actor);
-		ADoor* doorRef = Cast<ADoor>(hit.Actor);
+		Start = FirstPersonCameraComponent->GetComponentLocation() + (FirstPersonCameraComponent->GetForwardVector() * startDistance);
+		End = Start + (FirstPersonCameraComponent->GetForwardVector() * MaxGrabDistance);
+		GetWorld()->LineTraceSingleByChannel(hit, Start, End, ECC_Camera, TraceParams);
 
-		if (keyRef)
+		if (hit.bBlockingHit)
 		{
-			keyRef->Destroy();
-			hasKeyCard = true;
-		}
-		else if (doorRef)
-		{
-			if (!doorRef->exitDoor)
+			AKeyCard* keyRef = Cast<AKeyCard>(hit.Actor);
+			ADoor* doorRef = Cast<ADoor>(hit.Actor);
+
+			if (keyRef)
 			{
-				if (doorRef->needsKeyCard && hasKeyCard)
+				keyRef->Destroy();
+				hasKeyCard = true;
+			}
+			else if (doorRef)
+			{
+				if (!doorRef->exitDoor)
 				{
-					doorRef->Interact(GetFirstPersonCameraComponent()->GetForwardVector());
+					if (doorRef->needsKeyCard && hasKeyCard)
+					{
+						doorRef->Interact(GetFirstPersonCameraComponent()->GetForwardVector());
+					}
+					else if (!doorRef->needsKeyCard)
+					{
+						doorRef->Interact(GetFirstPersonCameraComponent()->GetForwardVector());
+					}
 				}
-				else if (!doorRef->needsKeyCard)
+				else if (doorRef->exitDoor && exitOpen)
 				{
-					doorRef->Interact(GetFirstPersonCameraComponent()->GetForwardVector());
+					// END GAME CODE HERE.
 				}
 			}
-			else if (doorRef->exitDoor && exitOpen)
+			// On item that can be picked up. Check weight.
+			else if (hit.Component->IsSimulatingPhysics() && hit.Component->GetMass() < MaxPickupWeight && !keyRef)
 			{
-				// END GAME CODE HERE.
+				// Grab the hit physics object.
+				HoldingObject = true;
+				GrabHandle->GrabComponent(hit.GetComponent(), hit.BoneName, hit.Location, true);
+			}
+
+			UE_LOG(LogTemp, Warning, TEXT("Hit"))
+				lineTraceColour = FColor::Green;
+
+			if (PrintHitName)
+			{
+				if (hit.Component != NULL)
+				{
+					GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, hit.Component->GetName());
+				}
+				else if (hit.Actor != NULL)
+				{
+					GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, hit.Actor->GetName());
+				}
 			}
 		}
-		// On item that can be picked up. Check weight.
-		else if (hit.Component->IsSimulatingPhysics() && hit.Component->GetMass() < MaxPickupWeight && !keyRef)
+	}
+	else if (process == 1)
+	{
+		Start = FVector(GetCapsuleComponent()->GetComponentLocation().X, GetCapsuleComponent()->GetComponentLocation().Y, GetCapsuleComponent()->GetComponentLocation().Z + CrouchedHeight);
+		End = FVector(Start.X, Start.Y, Start.Z + StandingHeight);
+		GetWorld()->SweepSingleByChannel(hit, Start, End, FQuat(),ECC_Camera, FCollisionShape::MakeSphere(32.0f),TraceParams);
+
+		if (hit.bBlockingHit)
 		{
-			// Grab the hit physics object.
-			HoldingObject = true;
-			GrabHandle->GrabComponentAtLocation(hit.GetComponent(), hit.BoneName, hit.Location);
+			return false;
 		}
-
-		UE_LOG(LogTemp, Warning, TEXT("Hit"))
-		lineTraceColour = FColor::Green;
-
-		if (PrintHitName)
-		{
-			if (hit.Component != NULL)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, hit.Component->GetName());
-			}
-			else if (hit.Actor != NULL)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, hit.Actor->GetName());
-			}
-		}	
 	}
 	// Show debug lines for line trace.
 	if (DebugEnabled)
 	{
 		DrawDebugLine(GetWorld(), hit.TraceStart, hit.TraceEnd, lineTraceColour, false, lineTraceTimeLimit, 0.0f, 1.0f);
 	}
+
+	return true;
 }
 
 void AGroupAICharacter::MoveForward(float Value)
@@ -285,7 +306,14 @@ void AGroupAICharacter::CrouchTrigger()
 	// Only trigger crouch if its not in progress and if the character is not jumping.
 	if (!Crouching && !GetCharacterMovement()->IsFalling())
 	{
-		Crouching = true;
+		if (Crouched && LineTrace(1))
+		{
+			Crouching = true;
+		}
+		else if (!Crouched)
+		{
+			Crouching = true;
+		}
 	}
 }
 
@@ -303,18 +331,21 @@ void AGroupAICharacter::StartCrouch()
 		CrouchSpeed -= 0.6f;
 	}
 	// If not yet at crouched height decrease capsule height at a rate of "crouch speed".
-	if (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() >= CrouchedHeight)
+	if (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() - CrouchSpeed > CrouchedHeight)
 	{
-		GetCapsuleComponent()->SetCapsuleHalfHeight(GetCapsuleComponent()->GetScaledCapsuleHalfHeight() - CrouchSpeed, false);
+		GetCapsuleComponent()->SetCapsuleHalfHeight(GetCapsuleComponent()->GetScaledCapsuleHalfHeight() - CrouchSpeed, true);
 	}
 	else// Otherwise The player is now crouched.
 	{
+		GetCapsuleComponent()->SetCapsuleHalfHeight(CrouchedHeight, true);
 		Crouched = true;
 		// Disable jump while crouched.
 		GetCharacterMovement()->SetJumpAllowed(false);
 		Crouching = false;
 		CrouchSpeed = 5.0f;
 	}
+
+	GetFirstPersonCameraComponent()->SetRelativeLocation(FVector(0.0f, 0.0f, GetCapsuleComponent()->GetScaledCapsuleHalfHeight() - 10.0f));
 }
 
 void AGroupAICharacter::Uncrouch()
@@ -329,20 +360,23 @@ void AGroupAICharacter::Uncrouch()
 		CrouchSpeed -= 0.6f;
 	}
 
-	if (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() < StandingHeight)
+	if (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() + CrouchSpeed < StandingHeight)
 	{
-		GetCapsuleComponent()->SetCapsuleHalfHeight(GetCapsuleComponent()->GetScaledCapsuleHalfHeight() + CrouchSpeed, false);
+		GetCapsuleComponent()->SetCapsuleHalfHeight(GetCapsuleComponent()->GetScaledCapsuleHalfHeight() + CrouchSpeed, true);
 	}
 	else
 	{
+		GetCapsuleComponent()->SetCapsuleHalfHeight(StandingHeight, true);
+		GetFirstPersonCameraComponent()->SetRelativeLocation(FVector(0.0f, 0.0f, StandingHeight));
 		Crouched = false;
-
 		GetCharacterMovement()->SetJumpAllowed(true);
-
 		Crouching = false;
 		CrouchSpeed = 5.0f;
 	}
+
+	GetFirstPersonCameraComponent()->SetRelativeLocation(FVector(0.0f, 0.0f, GetCapsuleComponent()->GetScaledCapsuleHalfHeight() - 10.0f));
 }
+
 
 void AGroupAICharacter::StartRunning()
 {

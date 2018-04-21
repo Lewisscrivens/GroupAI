@@ -104,6 +104,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	bool hasKeyCard;
 
+	/** Is the player hidden. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	bool hidden;
+
 	bool exitOpen;
 
 protected:
@@ -116,7 +120,7 @@ protected:
 	void PickUp();
 
 	/** Line trace from camera + start point to the end point. */
-	void LineTrace();
+	bool LineTrace(int process);
 
 	/** Handles moving forward/backward */
 	void MoveForward(float Val);

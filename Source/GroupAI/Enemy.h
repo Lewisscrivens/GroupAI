@@ -51,7 +51,4 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	bool waitingForDoor;
-
-	UPROPERTY(BlueprintReadOnly)
-	AWaypoint* lastWaypoint;
 };

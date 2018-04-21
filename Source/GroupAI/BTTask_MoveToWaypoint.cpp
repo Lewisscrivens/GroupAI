@@ -54,7 +54,8 @@ EBTNodeResult::Type UBTTask_MoveToWaypoint::ExecuteTask(UBehaviorTreeComponent& 
 			currentWaypoint++;
 		}
 
-		enemy->patrol = enemy->MoveToActor(targetWaypointPointer, 5.0f, true, true, true, 0, true);
+		enemy->MoveToActor(targetWaypointPointer, 5.0f, true, true, true, 0, true);
+		enemy->chasingPlayer = false;
 		targetWaypointPointer->beingVisited = true;
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Going to " + targetWaypointPointer->GetName()));
 

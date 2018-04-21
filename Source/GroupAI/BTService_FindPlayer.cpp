@@ -28,9 +28,7 @@ void UBTService_FindPlayer::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* N
 	
 		if (player)
 		{
-			// Initialise the blackboards values.
 			OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Object>(enemyPlayerController->ID, player);
-			//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Found Player.")); DEBUG
 		}
 	}
 

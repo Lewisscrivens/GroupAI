@@ -14,11 +14,11 @@
 EBTNodeResult::Type UBTTask_MoveToPlayer::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	AAI* enemy = Cast<AAI>(OwnerComp.GetAIOwner());
-	AGroupAICharacter* player = Cast<AGroupAICharacter>(OwnerComp.GetBlackboardComponent()->GetValue<UBlackboardKeyType_Object>(enemy->ID));
+	AGroupAICharacter* player = Cast<AGroupAICharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 
 	if (player)
 	{
-		enemy->chase = enemy->MoveToActor(player, 5.0f, true, true, true, 0, true);
+		enemy->MoveToActor(player, 5.0f, true, true, true, 0, true);
 		return EBTNodeResult::Succeeded;
 	}
 

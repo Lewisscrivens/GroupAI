@@ -42,14 +42,11 @@ public:
 	AWaypoint* targetWaypoint;
 	uint8 ID;
 	uint8 moving;
-
-	FAIRequestID patrol;
-	FAIRequestID chase;
+	bool chasingPlayer;
 
 private:
 
 	float runSpeed;
 	float walkSpeed;
 	bool canSeePlayer;
-	bool chasingPlayer;
 };

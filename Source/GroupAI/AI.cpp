@@ -75,21 +75,23 @@ void AAI::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 
 	if (player)
 	{
-		if (Stimulus.IsActive())
+		if (Stimulus.IsActive() && !player->hidden)
 		{
 			GetEnemy()->GetCharacterMovement()->MaxWalkSpeed = runSpeed;
 			canSeePlayer = true;
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Can See you."));
 			chasingPlayer = true;
+
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Can See you."));
 		}
 		else
 		{
 			GetEnemy()->GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
 			canSeePlayer = false;
+			// Set movement to false so that another waypoint is found. (Return to patrol behaviour.)
+			blackboardComponent->SetValue<UBlackboardKeyType_Bool>(blackboardComponent->GetKeyID("Moving"), false);
 			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Lost you."));
-
-			StopMovement();
 		}
+
 		blackboardComponent->SetValue<UBlackboardKeyType_Bool>(canSeePlayerKey, canSeePlayer);
 	}
 }
@@ -102,11 +104,11 @@ AEnemy* AAI::GetEnemy()
 // Reset the moving value in the blackboard.
 void AAI::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
 {
-	if (chasingPlayer)
+	if (!chasingPlayer)
 	{
 		moving = blackboardComponent->GetKeyID("Moving");
-
 		targetWaypoint->beingVisited = false;
+		GetEnemy()->waypointsInScene.Remove(targetWaypoint);
 		blackboardComponent->SetValue<UBlackboardKeyType_Bool>(moving, false);
 		blackboardComponent->SetValue<UBlackboardKeyType_Bool>(blackboardComponent->GetKeyID("Inspect"), true);
 	}
