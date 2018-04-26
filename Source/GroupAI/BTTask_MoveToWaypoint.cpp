@@ -56,7 +56,10 @@ EBTNodeResult::Type UBTTask_MoveToWaypoint::ExecuteTask(UBehaviorTreeComponent& 
 			currentWaypoint++;
 		}
 
-		enemy->chasingPlayer = false;
+		if (enemy)
+		{
+			enemy->chasingPlayer = false;
+		}
 
 		// Set the player is moving.
 		moving = OwnerComp.GetBlackboardComponent()->GetKeyID("Moving");
