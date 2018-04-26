@@ -39,8 +39,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OpenDoor(class ADoor* door);
 
-public:
-
 	TArray<AActor*> waypointsInScene;
 
 	UPROPERTY(BlueprintReadOnly)

@@ -234,10 +234,6 @@ bool AGroupAICharacter::LineTrace(int process)
 				HoldingObject = true;
 				GrabHandle->GrabComponent(hit.GetComponent(), hit.BoneName, hit.Location, true);
 			}
-
-			UE_LOG(LogTemp, Warning, TEXT("Hit"))
-				lineTraceColour = FColor::Green;
-
 			if (PrintHitName)
 			{
 				if (hit.Component != NULL)

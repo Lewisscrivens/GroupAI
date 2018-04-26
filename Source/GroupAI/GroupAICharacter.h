@@ -110,14 +110,14 @@ public:
 
 	bool exitOpen;
 
+	/** Pickup a projectile from the gamescene. */
+	UFUNCTION(BlueprintCallable)
+	void PickUp();
+
 protected:
 
 	/** Throw a projectile picked up from the gamescene. */
 	void Throw();
-
-	/** Pickup a projectile from the gamescene. */
-	UFUNCTION(BlueprintCallable)
-	void PickUp();
 
 	/** Line trace from camera + start point to the end point. */
 	bool LineTrace(int process);
