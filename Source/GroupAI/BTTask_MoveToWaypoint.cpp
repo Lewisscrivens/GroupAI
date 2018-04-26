@@ -45,7 +45,9 @@ EBTNodeResult::Type UBTTask_MoveToWaypoint::ExecuteTask(UBehaviorTreeComponent& 
 
 				if (!waypoint->beingVisited)
 				{
-					targetWaypointPointer = waypoint;
+					enemy->MoveToActor(waypoint, 5.0f, true, true, true, 0, true);
+					waypoint->beingVisited = true;
+					enemy->targetWaypoint = waypoint;
 					lastWaypoint = currentWaypoint;
 
 					break;
@@ -54,16 +56,11 @@ EBTNodeResult::Type UBTTask_MoveToWaypoint::ExecuteTask(UBehaviorTreeComponent& 
 			currentWaypoint++;
 		}
 
-		enemy->MoveToActor(targetWaypointPointer, 5.0f, true, true, true, 0, true);
 		enemy->chasingPlayer = false;
-		targetWaypointPointer->beingVisited = true;
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Going to " + targetWaypointPointer->GetName()));
 
 		// Set the player is moving.
 		moving = OwnerComp.GetBlackboardComponent()->GetKeyID("Moving");
 		bool result = OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(moving, true);
-
-		enemy->targetWaypoint = targetWaypointPointer;
 
 		return EBTNodeResult::Succeeded;
 	}

@@ -55,8 +55,8 @@ void AAI::Possess(APawn* inPawn)
 
 	if (PerceptionComponent)
 	{
-		sightConfig->SightRadius = 1000.0;
-		sightConfig->LoseSightRadius = 1200.0;
+		sightConfig->SightRadius = 1300.0f;
+		sightConfig->LoseSightRadius = 1500.0f;
 		sightConfig->PeripheralVisionAngleDegrees = 100.0f;
 		sightConfig->DetectionByAffiliation.bDetectEnemies = true;
 		sightConfig->DetectionByAffiliation.bDetectNeutrals = true;
@@ -65,7 +65,7 @@ void AAI::Possess(APawn* inPawn)
 	}
 
 	walkSpeed = GetEnemy()->GetCharacterMovement()->MaxWalkSpeed;
-	runSpeed = walkSpeed * 2;
+	runSpeed = walkSpeed * 3;
 }
 
 void AAI::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
