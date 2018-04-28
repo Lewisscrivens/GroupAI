@@ -4,6 +4,7 @@
 #include "GroupAIHUD.h"
 #include "GroupAICharacter.h"
 #include "UObject/ConstructorHelpers.h"
+#include <Kismet/GameplayStatics.h>
 
 AGroupAIGameMode::AGroupAIGameMode()
 	: Super()
@@ -14,4 +15,5 @@ AGroupAIGameMode::AGroupAIGameMode()
 
 	// use our custom HUD class
 	HUDClass = AGroupAIHUD::StaticClass();
+
 }

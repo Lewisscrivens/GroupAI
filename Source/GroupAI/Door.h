@@ -60,6 +60,6 @@ public:
 	bool needsKeyCard;
 
 	// Variables for locking system.
-	UPROPERTY(EditAnywhere, Category = Door)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = Door)
 	bool exitDoor;
 };

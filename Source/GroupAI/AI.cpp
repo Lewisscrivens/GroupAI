@@ -79,7 +79,7 @@ void AAI::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 		{
 			GetEnemy()->GetCharacterMovement()->MaxWalkSpeed = runSpeed;
 			canSeePlayer = true;
-			chasingPlayer = true;
+			GetEnemy()->chasingPlayer = true;
 
 			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Can See you."));
 		}
@@ -104,7 +104,7 @@ AEnemy* AAI::GetEnemy()
 // Reset the moving value in the blackboard.
 void AAI::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
 {
-	if (!chasingPlayer)
+	if (!GetEnemy()->chasingPlayer)
 	{
 		moving = blackboardComponent->GetKeyID("Moving");
 		targetWaypoint->beingVisited = false;

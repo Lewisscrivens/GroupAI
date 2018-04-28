@@ -58,7 +58,7 @@ EBTNodeResult::Type UBTTask_MoveToWaypoint::ExecuteTask(UBehaviorTreeComponent& 
 
 		if (enemy)
 		{
-			enemy->chasingPlayer = false;
+			enemy->GetEnemy()->chasingPlayer = false;
 		}
 
 		// Set the player is moving.

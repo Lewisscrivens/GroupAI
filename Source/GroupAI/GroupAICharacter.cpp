@@ -37,7 +37,7 @@ AGroupAICharacter::AGroupAICharacter()
 	BaseLookUpRate = 45.f;
 
 	// If true then show the debugging tools in editor.
-	DebugEnabled = true;
+	DebugEnabled = false;
 	HoldingObject = false;
 
 	// Crouching variables Initialization.
@@ -49,6 +49,7 @@ AGroupAICharacter::AGroupAICharacter()
 	CurrentPosition = StandingHeight;
 
 	hasKeyCard = false;
+	hasHackComputer = false;
 	exitOpen = false;
 
 	// Running variables.
@@ -181,7 +182,7 @@ bool AGroupAICharacter::LineTrace(int process)
 {
 	// Camera offset.
 	float startDistance = 5.0f;
-	bool PrintHitName = true;
+	bool PrintHitName = false;
 	FHitResult hit;
 	FVector Start;
 	FVector End;

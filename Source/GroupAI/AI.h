@@ -44,9 +44,11 @@ public:
 	uint8 moving;
 	bool chasingPlayer;
 
+	UPROPERTY(BlueprintReadOnly)
+	bool canSeePlayer;
+
 private:
 
 	float runSpeed;
 	float walkSpeed;
-	bool canSeePlayer;
 };

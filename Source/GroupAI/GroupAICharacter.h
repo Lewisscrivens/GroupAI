@@ -104,10 +104,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	bool hasKeyCard;
 
+	/** Has Key card?. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	bool hasHackComputer;
+
 	/** Is the player hidden. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	bool hidden;
 
+	/** Is the player hidden. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	bool exitOpen;
 
 	/** Pickup a projectile from the gamescene. */
