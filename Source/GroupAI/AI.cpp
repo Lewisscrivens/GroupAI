@@ -57,7 +57,7 @@ void AAI::Possess(APawn* inPawn)
 	{
 		sightConfig->SightRadius = 1300.0f;
 		sightConfig->LoseSightRadius = 1500.0f;
-		sightConfig->PeripheralVisionAngleDegrees = 100.0f;
+		sightConfig->PeripheralVisionAngleDegrees = 90.0f;
 		sightConfig->DetectionByAffiliation.bDetectEnemies = true;
 		sightConfig->DetectionByAffiliation.bDetectNeutrals = true;
 		sightConfig->DetectionByAffiliation.bDetectFriendlies = true;
@@ -87,8 +87,9 @@ void AAI::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 		{
 			GetEnemy()->GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
 			canSeePlayer = false;
+			StopMovement();
+			LastSeenLocation();
 			// Set movement to false so that another waypoint is found. (Return to patrol behaviour.)
-			blackboardComponent->SetValue<UBlackboardKeyType_Bool>(blackboardComponent->GetKeyID("Moving"), false);
 			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Lost you."));
 		}
 
@@ -101,14 +102,32 @@ AEnemy* AAI::GetEnemy()
 	return Cast<AEnemy>(GetPawn());
 }
 
+void AAI::LastSeenLocation()
+{
+	// Ran when lost sight of player so first get the players current location.
+	AGroupAICharacter* player = Cast<AGroupAICharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+
+	if (player)
+	{
+		FVector playersLocation = player->GetActorLocation();
+		blackboardComponent->SetValue<UBlackboardKeyType_Vector>(blackboardComponent->GetKeyID("PlayersLastLocation"), playersLocation);
+
+		// Calculate the players current location from the last seen location.
+		//FVector searchLocation;
+
+
+
+		//blackboardComponent->SetValue<UBlackboardKeyType_Vector>(blackboardComponent->GetKeyID("InspectLocation"), searchLocation);
+	}
+}
+
 // Reset the moving value in the blackboard.
 void AAI::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
 {
-	if (!GetEnemy()->chasingPlayer)
+	if (!blackboardComponent->GetValueAsBool(FName("CanSeePlayer"))
+	)
 	{
 		moving = blackboardComponent->GetKeyID("Moving");
-		targetWaypoint->beingVisited = false;
-		GetEnemy()->waypointsInScene.Remove(targetWaypoint);
 		blackboardComponent->SetValue<UBlackboardKeyType_Bool>(moving, false);
 		blackboardComponent->SetValue<UBlackboardKeyType_Bool>(blackboardComponent->GetKeyID("Inspect"), true);
 	}

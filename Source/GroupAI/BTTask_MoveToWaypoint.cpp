@@ -37,23 +37,36 @@ EBTNodeResult::Type UBTTask_MoveToWaypoint::ExecuteTask(UBehaviorTreeComponent& 
 			random--;
 		}
 
+		AWaypoint* chosenWaypoint = NULL;
+		AWaypoint* waypointCast = NULL;
+
+	RedoLoop:
 		for (AActor* waypointActor : patrolWaypoints)
 		{
 			if (random == currentWaypoint)
 			{
-				AWaypoint* waypoint = Cast<AWaypoint>(waypointActor);
+				waypointCast = Cast<AWaypoint>(waypointActor);
 
-				if (!waypoint->beingVisited)
+				if (!waypointCast->beingVisited)
 				{
-					enemy->MoveToActor(waypoint, 5.0f, true, true, true, 0, true);
-					waypoint->beingVisited = true;
-					enemy->targetWaypoint = waypoint;
+					chosenWaypoint = waypointCast;
+					waypointCast->beingVisited = true;
+					enemy->targetWaypoint = waypointCast;
 					lastWaypoint = currentWaypoint;
 
 					break;
 				}
 			}
 			currentWaypoint++;
+		}
+
+		if (chosenWaypoint)
+		{
+			enemy->MoveToActor(chosenWaypoint, 5.0f, true, true, true, 0, true);
+		}
+		else
+		{
+			goto RedoLoop;
 		}
 
 		if (enemy)

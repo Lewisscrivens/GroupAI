@@ -39,6 +39,9 @@ public:
 	UFUNCTION()
 	class AEnemy* GetEnemy();
 
+	UFUNCTION()
+	void LastSeenLocation();
+
 	AWaypoint* targetWaypoint;
 	uint8 ID;
 	uint8 moving;
