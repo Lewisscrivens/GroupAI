@@ -5,6 +5,8 @@
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
+#include <GameFramework/Character.h>
+#include <GameFramework/CharacterMovementComponent.h>
 #include "Enemy.h"
 #include "AI.h"
 #include "GroupAICharacter.h"
@@ -13,6 +15,7 @@
 #include <Kismet/GameplayStatics.h>
 #include <BehaviorTree/BTNode.h>
 #include <Object.h>
+
 
 
 EBTNodeResult::Type UBTTask_MoveToWaypoint::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -69,9 +72,11 @@ EBTNodeResult::Type UBTTask_MoveToWaypoint::ExecuteTask(UBehaviorTreeComponent& 
 			goto RedoLoop;
 		}
 
+		// Return to normal state as we are now returning to the patrol behavior.
 		if (enemy)
 		{
 			enemy->GetEnemy()->chasingPlayer = false;
+			enemy->GetEnemy()->GetCharacterMovement()->MaxWalkSpeed = enemy->walkSpeed;
 		}
 
 		// Set the player is moving.

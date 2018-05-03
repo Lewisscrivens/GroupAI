@@ -12,6 +12,8 @@
 #include "Waypoint.h"
 #include <Kismet/GameplayStatics.h>
 #include <AITypes.h>
+#include <GameFramework/Character.h>
+#include <GameFramework/CharacterMovementComponent.h>
 
 
 EBTNodeResult::Type UBTTask_EndInspect::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)

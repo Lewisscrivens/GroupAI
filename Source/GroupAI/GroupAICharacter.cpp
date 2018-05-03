@@ -233,7 +233,7 @@ bool AGroupAICharacter::LineTrace(int process)
 			{
 				// Grab the hit physics object.
 				HoldingObject = true;
-				GrabHandle->GrabComponent(hit.GetComponent(), hit.BoneName, hit.Location, true);
+				GrabHandle->GrabComponentAtLocationWithRotation(hit.GetComponent(), hit.BoneName, hit.Location, FRotator());
 			}
 			if (PrintHitName)
 			{

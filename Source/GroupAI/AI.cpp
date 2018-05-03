@@ -75,23 +75,30 @@ void AAI::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 
 	if (player)
 	{
-		if (Stimulus.IsActive() && !player->hidden)
+		if (!player->hidden)
 		{
-			GetEnemy()->GetCharacterMovement()->MaxWalkSpeed = runSpeed;
-			canSeePlayer = true;
-			GetEnemy()->chasingPlayer = true;
+			if (Stimulus.IsActive())
+			{
+				GetEnemy()->GetCharacterMovement()->MaxWalkSpeed = runSpeed;
+				canSeePlayer = true;
+				GetEnemy()->chasingPlayer = true;
 
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Can See you."));
+				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Can See you."));
+			}
+			else
+			{
+				canSeePlayer = false;
+				LastSeenLocation();
+				StopMovement();
+				// Set movement to false so that another waypoint is found. (Return to patrol behavior.)
+				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Lost you."));
+			}
 		}
 		else
 		{
-			GetEnemy()->GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
 			canSeePlayer = false;
-			LastSeenLocation();
-			StopMovement();
-			// Set movement to false so that another waypoint is found. (Return to patrol behaviour.)
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Lost you."));
 		}
+
 
 		blackboardComponent->SetValue<UBlackboardKeyType_Bool>(canSeePlayerKey, canSeePlayer);
 	}

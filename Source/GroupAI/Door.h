@@ -27,10 +27,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION()
-	void Open();
+	void Open(float DeltaTime);
 
 	UFUNCTION()
-	void Close();
+	void Close(float DeltaTime);
 
 	class USceneComponent* root;
 

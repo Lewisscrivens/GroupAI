@@ -50,6 +50,6 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	bool waitingForDoor;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadWrite)
 	bool chasingPlayer;
 };
