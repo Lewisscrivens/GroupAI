@@ -15,13 +15,15 @@
 
 EBTNodeResult::Type UBTTask_FindInspectLocation::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
+	// Add random chance that AI will walk next to you as the search location.
+
 	// Ran when lost sight of player so first get the players current location.
 	AGroupAICharacter* player = Cast<AGroupAICharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 	FVector playerCurrentLocation = player->GetActorLocation();
 	
 	FVector playersLastLocation = OwnerComp.GetBlackboardComponent()->GetValueAsVector(FName("PlayersLastLocation"));
 
-	FVector searchLocationBase = FVector(((playersLastLocation.X + playerCurrentLocation.X) / 3)*2, ((playersLastLocation.Y + playerCurrentLocation.Y) / 3) * 2, playersLastLocation.Z);
+	FVector searchLocationBase = FVector(((playersLastLocation.X + playerCurrentLocation.X) / 2), ((playersLastLocation.Y + playerCurrentLocation.Y) / 2), playersLastLocation.Z);
 	FNavLocation searchLocation;
 
 	bool result = GetWorld()->GetNavigationSystem()->GetRandomPointInNavigableRadius(searchLocationBase, 5.0f, searchLocation);
