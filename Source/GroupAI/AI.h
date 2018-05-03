@@ -18,7 +18,7 @@ class GROUPAI_API AAI : public AAIController
 	
 	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
 
-	UPROPERTY()
+	UPROPERTY(visibleAnywhere)
 	class UBlackboardComponent* blackboardComponent;
 
 	UPROPERTY()

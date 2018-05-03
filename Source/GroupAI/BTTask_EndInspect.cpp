@@ -19,6 +19,12 @@ EBTNodeResult::Type UBTTask_EndInspect::ExecuteTask(UBehaviorTreeComponent& Owne
 	AAI* enemy = Cast<AAI>(OwnerComp.GetAIOwner());
 
 	OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(OwnerComp.GetBlackboardComponent()->GetKeyID("Inspect"), false);
+
+	// After inspection clear the players last location as this code wouldnt be ran if the AI was looking for the player.
+	OwnerComp.GetBlackboardComponent()->ClearValue(FName("PlayersLastLocation"));
 	
+	AEnemy* pawn = Cast<AEnemy>(enemy->GetPawn());
+	pawn->chasingPlayer = false;
+
 	return EBTNodeResult::Succeeded;
 }

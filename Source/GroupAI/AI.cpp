@@ -87,8 +87,8 @@ void AAI::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 		{
 			GetEnemy()->GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
 			canSeePlayer = false;
-			StopMovement();
 			LastSeenLocation();
+			StopMovement();
 			// Set movement to false so that another waypoint is found. (Return to patrol behaviour.)
 			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Lost you."));
 		}
@@ -109,26 +109,17 @@ void AAI::LastSeenLocation()
 
 	if (player)
 	{
-		FVector playersLocation = player->GetActorLocation();
-		blackboardComponent->SetValue<UBlackboardKeyType_Vector>(blackboardComponent->GetKeyID("PlayersLastLocation"), playersLocation);
-
-		// Calculate the players current location from the last seen location.
-		//FVector searchLocation;
-
-
-
-		//blackboardComponent->SetValue<UBlackboardKeyType_Vector>(blackboardComponent->GetKeyID("InspectLocation"), searchLocation);
+		FVector playersLastLocation = player->GetActorLocation();
+		blackboardComponent->SetValue<UBlackboardKeyType_Vector>(blackboardComponent->GetKeyID("PlayersLastLocation"), playersLastLocation);
 	}
 }
 
 // Reset the moving value in the blackboard.
 void AAI::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
 {
-	if (!blackboardComponent->GetValueAsBool(FName("CanSeePlayer"))
-	)
-	{
-		moving = blackboardComponent->GetKeyID("Moving");
-		blackboardComponent->SetValue<UBlackboardKeyType_Bool>(moving, false);
-		blackboardComponent->SetValue<UBlackboardKeyType_Bool>(blackboardComponent->GetKeyID("Inspect"), true);
-	}
+	moving = blackboardComponent->GetKeyID("Moving");
+
+	if (!chasingPlayer) blackboardComponent->SetValue<UBlackboardKeyType_Bool>(moving, false);
+
+	blackboardComponent->SetValue<UBlackboardKeyType_Bool>(blackboardComponent->GetKeyID("Inspect"), true);
 }
