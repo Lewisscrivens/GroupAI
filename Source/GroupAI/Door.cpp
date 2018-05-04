@@ -31,7 +31,7 @@ ADoor::ADoor()
 	door->SetupAttachment(RootComponent);
 
 	// Find the default model for the door.
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> DoorMesh(TEXT("/Game/Assets/World/Models/DoorMesh.DoorMesh"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> DoorMesh(TEXT("/Game/Assets/World/Props/DoorMesh.DoorMesh"));
 
 	if (DoorMesh.Succeeded())
 	{
