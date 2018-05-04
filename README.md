@@ -2,6 +2,8 @@
 
 An Unreal Engine 4 project created for my Computer Game Studio 2 module at The University Of Huddersfield.
 
+Packaged game can be found at the following link: https://github.com/lewisscrivens98/GroupAIGame
+
 ------------------------------------------------------------------
 
 The project is created to show understanding of advanced game AI that previews path finding in a game world, group interaction to help corner the player and interaction with objects in the world.
