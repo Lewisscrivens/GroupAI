@@ -36,6 +36,7 @@ void AEnemy::BeginPlay()
 	// Fill way points array with all way points in the scene.
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWaypoint::StaticClass(), waypointsInScene);
 
+	// Get the current pawns controller.
 	enemyController = Cast<AAI>(GetController());
 }
 
@@ -44,8 +45,10 @@ void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// If currentDoor is set and the enemy is waiting for a door.
 	if (currentDoor && waitingForDoor)
 	{
+		// If the current door is not closing or opening resume there move.
 		if (!currentDoor->closing && !currentDoor->opening)
 		{
 			enemyController->ResumeMove(FAIRequestID::CurrentRequest);
@@ -60,17 +63,23 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
+// Ran from the MyEnemy blueprint as I needed to handle the collision in bp.
 void AEnemy::OpenDoor(ADoor* door)
 {
+	// If the door is not null and its not an exit door.
 	if (door)
 	{
 		if (!door->exitDoor)
 		{
+			// Current door equals the current door being opened.
 			currentDoor = door;
+			// Currently waiting for the door to open/close.
 			waitingForDoor = true;
 
+			// Pause the current move while the door opens/closes.
 			enemyController->PauseMove(FAIRequestID::CurrentRequest);
 
+			// Run the open door code for the current door.
 			door->Interact(enemyController->GetEnemy()->GetCapsuleComponent()->GetForwardVector());
 		}
 	}

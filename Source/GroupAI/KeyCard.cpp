@@ -7,10 +7,13 @@
 
 AKeyCard::AKeyCard()
 {
+	// Create key card mesh object.
 	keyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("keyMesh"));
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> KeyMeshFile(TEXT("/Game/Assets/World/Models/Cube.Cube"));
+	// Get the cube model to be used as the key mesh.
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> KeyMeshFile(TEXT("/Game/Assets/World/Props/Cube.Cube"));
 
+	// If the files was obtained successfully the initialize it into a key card shape.
 	if (KeyMeshFile.Succeeded())
 	{
 		keyMesh->SetStaticMesh(KeyMeshFile.Object);

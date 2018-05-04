@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Not currently in use.
 
 #include "BTService_FindPlayer.h"
 #include "GroupAI.h"

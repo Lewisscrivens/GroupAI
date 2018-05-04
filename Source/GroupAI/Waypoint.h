@@ -7,7 +7,7 @@
 #include "Waypoint.generated.h"
 
 /**
- * 
+ * Was thinking about maybe adding a counter to this later in the games development to give each waypoint a timeout for say 5 turns.
  */
 UCLASS()
 class GROUPAI_API AWaypoint : public AStaticMeshActor

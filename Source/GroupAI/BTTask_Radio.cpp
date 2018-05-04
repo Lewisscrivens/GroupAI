@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Not currently in use code moved to myenemy blueprint.
 
 #include "BTTask_Radio.h"
 #include "BehaviorTree/BehaviorTree.h"

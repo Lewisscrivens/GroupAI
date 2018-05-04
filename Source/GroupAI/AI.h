@@ -18,10 +18,10 @@ class GROUPAI_API AAI : public AAIController
 	
 	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
 
-	UPROPERTY(visibleAnywhere)
+	UPROPERTY(visibleAnywhere, Category = AIBehaviour)
 	class UBlackboardComponent* blackboardComponent;
 
-	UPROPERTY()
+	UPROPERTY(visibleAnywhere, Category = AIBehaviour)
 	class UBehaviorTreeComponent* behaviourTreeComponent;
 
 	UPROPERTY()
@@ -33,23 +33,21 @@ public:
 
 	virtual void Possess(APawn* inPawn) override;
 
-	UFUNCTION()
+	UFUNCTION(Category = AIBehaviour)
 	void OnTargetPerceptionUpdated(class AActor* Actor, FAIStimulus Stimulus);
 
-	UFUNCTION()
+	UFUNCTION(Category = AIBehaviour)
 	class AEnemy* GetEnemy();
 
-	UFUNCTION()
+	UFUNCTION(Category = AIBehaviour)
 	void LastSeenLocation();
 
+	UPROPERTY(BlueprintReadWrite)
+	bool canSeePlayer;
 	AWaypoint* targetWaypoint;
 	uint8 ID;
 	uint8 moving;
 	bool chasingPlayer;
-
-	UPROPERTY(BlueprintReadWrite)
-	bool canSeePlayer;
-
 	float runSpeed;
 	float walkSpeed;
 };

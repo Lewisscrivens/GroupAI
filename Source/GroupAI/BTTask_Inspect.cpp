@@ -4,6 +4,8 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+// Not currently in use.
+
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
 #include "Enemy.h"
 #include "AI.h"

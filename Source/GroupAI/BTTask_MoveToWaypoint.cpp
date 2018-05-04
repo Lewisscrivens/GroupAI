@@ -24,14 +24,15 @@ EBTNodeResult::Type UBTTask_MoveToWaypoint::ExecuteTask(UBehaviorTreeComponent& 
 	AAI* enemy = Cast<AAI>(OwnerComp.GetAIOwner());
 	// Fill way points array with all way points in the scene.
 	TArray<AActor*> patrolWaypoints = enemy->GetEnemy()->waypointsInScene;
-
 	AWaypoint* targetWaypointPointer = 0;
-
 	int currentWaypoint = 0;
-
-	// Move to way points 
+	
+	// If the current enemy controller is not null.
 	if (enemy)
 	{
+	// Redo the check if a waypoint was not found.
+	RedoLoop:
+		// Get a random waypoint within the patrol waypoints index range.
 		int random = FMath::RandRange(0, patrolWaypoints.Num() - 1);
 
 		// Used to avoid going to the same waypoint twice.
@@ -43,31 +44,42 @@ EBTNodeResult::Type UBTTask_MoveToWaypoint::ExecuteTask(UBehaviorTreeComponent& 
 		AWaypoint* chosenWaypoint = NULL;
 		AWaypoint* waypointCast = NULL;
 
-	RedoLoop:
+		// For each waypoint in the patrol way point's array.
 		for (AActor* waypointActor : patrolWaypoints)
 		{
+			// If the current waypoint counter is equal to the randomly chosen one.
 			if (random == currentWaypoint)
 			{
+				// Get the waypoint class.
 				waypointCast = Cast<AWaypoint>(waypointActor);
 
+				// Check if the waypoint is being visited if not.
 				if (!waypointCast->beingVisited)
 				{
+					// Set current waypoint as chosen waypoint.
 					chosenWaypoint = waypointCast;
+					// The waypoint is now being visited.
 					waypointCast->beingVisited = true;
+					// Set the current waypoint in the controller.
 					enemy->targetWaypoint = waypointCast;
+					// Set the last waypoint as the currently chosen one for the next time this is ran.
 					lastWaypoint = currentWaypoint;
 
+					// Break the for loop as we have found the waypoint.
 					break;
 				}
 			}
+			// Keep track of current waypoint index.
 			currentWaypoint++;
 		}
 
+		// If the chosen waypoint has been set.
 		if (chosenWaypoint)
 		{
+			// Move to the chosen waypoint.
 			enemy->MoveToActor(chosenWaypoint, 5.0f, true, true, true, 0, true);
 		}
-		else
+		else // Otherwise redo the search for a random waypoint.
 		{
 			goto RedoLoop;
 		}
@@ -86,5 +98,6 @@ EBTNodeResult::Type UBTTask_MoveToWaypoint::ExecuteTask(UBehaviorTreeComponent& 
 		return EBTNodeResult::Succeeded;
 	}
 
+	// If the search did not succeed then return failed.
 	return EBTNodeResult::Failed;
 }

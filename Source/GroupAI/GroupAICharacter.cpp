@@ -1,5 +1,3 @@
-// Copyright 1998-2017 Epic Games, Inc. All Rights Reserved.
-
 #include "GroupAICharacter.h"
 #include "GroupAI.h"
 #include "GroupAIProjectile.h"
@@ -48,16 +46,16 @@ AGroupAICharacter::AGroupAICharacter()
 	CrouchSpeed = 5.0f;
 	CurrentPosition = StandingHeight;
 
+	// Objective variables.
 	hasKeyCard = false;
 	hasHackComputer = false;
 	exitOpen = false;
 
-	// Running variables.
+	// Movement variables.
 	WalkSpeed = 300.0f;
 	RunSpeed = 600.0f;
 	CrouchedWalkSpeed = 150.0f;
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
-
 	Running = false;
 
 	// Setting the default throw force.
@@ -76,10 +74,8 @@ AGroupAICharacter::AGroupAICharacter()
 	FirstPersonCameraComponent->RelativeLocation = FVector(-29.56f, 1.75f, 64.f); // Change position in editor.
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
+	// Create a grab handle to pick up physics objects.
 	GrabHandle = CreateDefaultSubobject<UPhysicsHandleComponent>(TEXT("PhysicHandle"));
-
-	// Note: The ProjectileClass and the skeletal mesh/anim blueprints for Mesh1P, FP_Gun, and VR_Gun 
-	// are set in the derived blueprint asset named MyCharacter to avoid direct content references in C++.
 }
 
 // Constructor from BP.
@@ -93,12 +89,13 @@ void AGroupAICharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// If holding object is not null set the current grab location to 100 units forward from where the player is looking.
 	if (HoldingObject)
 	{
 		GrabHandle->SetTargetLocation(FirstPersonCameraComponent->GetComponentLocation() + (FirstPersonCameraComponent->GetForwardVector() * 100.0f));
 	}
 
-	// Handle crouch or uncrouch animation.
+	// Handle crouch or un-crouch animation.
 	if (Crouching && Crouched)
 	{
 		Uncrouch();
@@ -109,9 +106,7 @@ void AGroupAICharacter::Tick(float DeltaTime)
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////
-// Input
-
+// Input.
 void AGroupAICharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// set up game play key bindings
@@ -146,8 +141,10 @@ void AGroupAICharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 
 void AGroupAICharacter::Throw()
 {
+	// Of holding object.
 	if (HoldingObject)
 	{
+		// Print debug message if debug is enabled.
 		if (DebugEnabled)
 		{
 			if (GEngine)
@@ -156,19 +153,22 @@ void AGroupAICharacter::Throw()
 			}
 		}
 
+		// Get the component attached to the grab handle and add a forward force to it to simulate throwing objects.
 		UPrimitiveComponent* item = GrabHandle->GetGrabbedComponent();
 		GrabHandle->ReleaseComponent();
 		item->AddImpulse(FirstPersonCameraComponent->GetForwardVector() * ThrowForce);
-
+		// No longer holding the object.
 		HoldingObject = false;
 	}
 }
 
 void AGroupAICharacter::PickUp()
 {
+	// Only allow objects to be picked up if not already holding an object.
 	if (!HoldingObject)
 	{
-		if (GEngine && DebugEnabled)
+		// If Debug is enabled print debug message.
+		if (DebugEnabled)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Tried pickup."));
 		}
@@ -182,50 +182,55 @@ bool AGroupAICharacter::LineTrace(int process)
 {
 	// Camera offset.
 	float startDistance = 5.0f;
-	bool PrintHitName = false;
+
+	// Line trace variable initialization.
 	FHitResult hit;
 	FVector Start;
 	FVector End;
 	FCollisionQueryParams TraceParams;
 	TraceParams.bTraceComplex = true;
-	//Ignore Actors
-	TraceParams.AddIgnoredComponent(GetCapsuleComponent());// Ignore the player capsule.
 
+	//Ignore Actors
+	TraceParams.AddIgnoredComponent(GetCapsuleComponent());
+
+	// Used to trace color in the line trace for debug.
 	FColor lineTraceColour = FColor::Red;
 	int lineTraceTimeLimit = 30; // Variable for controlling how long the line trace lasts.
 	
+	// If the process is 0 meaning something is being picked up.
 	if (process == 0)
 	{
+		// Set start to the current camera location and end to a distance forward.
 		Start = FirstPersonCameraComponent->GetComponentLocation() + (FirstPersonCameraComponent->GetForwardVector() * startDistance);
 		End = Start + (FirstPersonCameraComponent->GetForwardVector() * MaxGrabDistance);
+		// Perform a single line trace.
 		GetWorld()->LineTraceSingleByChannel(hit, Start, End, ECC_Camera, TraceParams);
 
+		// If the line trace has been blocked by an actor.
 		if (hit.bBlockingHit)
 		{
 			AKeyCard* keyRef = Cast<AKeyCard>(hit.Actor);
 			ADoor* doorRef = Cast<ADoor>(hit.Actor);
 
+			// If the hit actor is a key destroy the key and set has keycard to true.
 			if (keyRef)
 			{
 				keyRef->Destroy();
 				hasKeyCard = true;
 			}
-			else if (doorRef)
+			else if (doorRef) // Otherwise if the hit object is a door.
 			{
-				if (!doorRef->exitDoor)
+				if (!doorRef->exitDoor)// The door is not an exit door.
 				{
-					if (doorRef->needsKeyCard && hasKeyCard)
+					if (doorRef->needsKeyCard && hasKeyCard) // The door needs a key card which the player has open the door.
 					{
 						doorRef->Interact(GetFirstPersonCameraComponent()->GetForwardVector());
 					}
-					else if (!doorRef->needsKeyCard)
+					else if (!doorRef->needsKeyCard) // The door doesn't need a key card open the door.
 					{
 						doorRef->Interact(GetFirstPersonCameraComponent()->GetForwardVector());
 					}
-				}
-				else if (doorRef->exitDoor && exitOpen)
-				{
-					// END GAME CODE HERE.
+					// Exit door is handled in the player blueprint.
 				}
 			}
 			// On item that can be picked up. Check weight.
@@ -235,7 +240,7 @@ bool AGroupAICharacter::LineTrace(int process)
 				HoldingObject = true;
 				GrabHandle->GrabComponentAtLocationWithRotation(hit.GetComponent(), hit.BoneName, hit.Location, FRotator());
 			}
-			if (PrintHitName)
+			if (DebugEnabled) // If debug is enabled then print the hit component/actors name.
 			{
 				if (hit.Component != NULL)
 				{
@@ -247,13 +252,14 @@ bool AGroupAICharacter::LineTrace(int process)
 				}
 			}
 		}
-	}
+	}// If process 1 which means if were checking if the player can stand up using a sphere trace.
 	else if (process == 1)
 	{
+		// Start location is the players location and end location is standing height above the players location.
 		Start = FVector(GetCapsuleComponent()->GetComponentLocation().X, GetCapsuleComponent()->GetComponentLocation().Y, GetCapsuleComponent()->GetComponentLocation().Z + CrouchedHeight);
 		End = FVector(Start.X, Start.Y, Start.Z + StandingHeight);
 		GetWorld()->SweepSingleByChannel(hit, Start, End, FQuat(),ECC_Camera, FCollisionShape::MakeSphere(32.0f),TraceParams);
-
+		// If blocked then return false so the player cannot stand.
 		if (hit.bBlockingHit)
 		{
 			return false;
@@ -264,7 +270,7 @@ bool AGroupAICharacter::LineTrace(int process)
 	{
 		DrawDebugLine(GetWorld(), hit.TraceStart, hit.TraceEnd, lineTraceColour, false, lineTraceTimeLimit, 0.0f, 1.0f);
 	}
-
+	// Return true so if it was process one the player can stand.
 	return true;
 }
 
@@ -303,11 +309,12 @@ void AGroupAICharacter::CrouchTrigger()
 	// Only trigger crouch if its not in progress and if the character is not jumping.
 	if (!Crouching && !GetCharacterMovement()->IsFalling())
 	{
+		//If trying to stand check if underneath something using the line trace process 1.
 		if (Crouched && LineTrace(1))
 		{
 			Crouching = true;
 		}
-		else if (!Crouched)
+		else if (!Crouched)// If standing then crouch.
 		{
 			Crouching = true;
 		}
@@ -316,8 +323,9 @@ void AGroupAICharacter::CrouchTrigger()
 
 void AGroupAICharacter::StartCrouch()
 {
-	if (Running) StopRunning();
+	if (Running) StopRunning();// Stop running when crouched.
 
+	// Reduce walk speed slowly to the crouched walk speed.
 	if (GetCharacterMovement()->MaxWalkSpeed > CrouchedWalkSpeed)
 	{
 		GetCharacterMovement()->MaxWalkSpeed -= 15.0f;
@@ -347,6 +355,7 @@ void AGroupAICharacter::StartCrouch()
 
 void AGroupAICharacter::Uncrouch()
 {
+	// Slowly increase speed back to normal walk speed.
 	if (GetCharacterMovement()->MaxWalkSpeed < WalkSpeed)
 	{
 		GetCharacterMovement()->MaxWalkSpeed += 15.0f;
@@ -356,12 +365,12 @@ void AGroupAICharacter::Uncrouch()
 	{
 		CrouchSpeed -= 0.6f;
 	}
-
+	// If adding the current crouch speed will not go over the standing height then do so.
 	if (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() + CrouchSpeed < StandingHeight)
 	{
 		GetCapsuleComponent()->SetCapsuleHalfHeight(GetCapsuleComponent()->GetScaledCapsuleHalfHeight() + CrouchSpeed, true);
 	}
-	else
+	else // Otherwise set current height to standing height and finish standing up.
 	{
 		GetCapsuleComponent()->SetCapsuleHalfHeight(StandingHeight, true);
 		GetFirstPersonCameraComponent()->SetRelativeLocation(FVector(0.0f, 0.0f, StandingHeight));
