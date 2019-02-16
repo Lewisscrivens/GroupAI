@@ -1,6 +1,6 @@
 # Group-AI
 
-An Unreal Engine 4 project created for my Computer Game Studio 2 module at The University Of Huddersfield.
+An Unreal Engine 4 project created for my Computer Game Studio 2 module at The University Of Huddersfield in my second year.
 
 Packaged game can be found at the following link: https://www.dropbox.com/s/wodtyuwgf7tolse/GroupAIGame.zip?dl=0
 
