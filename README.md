@@ -33,6 +33,15 @@ Objective in the game level:
 
 NOTE: Once these objectives are all complete the game will end and it will give you a score based on the time taken to complete.
 
+What I Learnt:
+
+- User interface techniques within unreal engine.
+- Programming communcation between blueprint and C++.
+- AI behaviour tree design.
+- AI navigation and interaction.
+- Dynamic lighting and audio.
+- How to create random game events.
+
 ------------------------------------------------------------------
 
 This project was built with Unreal Engine 4.19.1 and Visual Studio 2015.
