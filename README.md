@@ -6,6 +6,8 @@ Packaged game can be found at the following link: https://www.dropbox.com/s/wodt
 
 ------------------------------------------------------------------
 
+ [![Watch the video](https://img.youtube.com/vi/WngH5A6_FPc/maxresdefault.jpg)](https://youtu.be/WngH5A6_FPc)
+
 The project is created to show understanding of advanced game AI that previews path finding in a game world, group interaction to help corner the player and interaction with objects in the world.
 
 I have also used RVO avoidance to help AI find there way around each other.
